@@ -1,0 +1,173 @@
+<html>
+    <head>
+        <title>My Todo App</title>
+        <link rel="stylesheet" href="todo.css">
+     
+    </head>
+    <body>
+        
+    
+        <h1>To Do App</h1>
+      
+        <input class="input-box" id="todo-input" type="text" placeholder="new task" />
+        <input id="date-picker" type="date"  />
+        <button onclick="addTodo()">add task</button>
+        <button onclick="clearList()">clear task</button>
+        <div id="todo-list"></div>
+        
+        <script>
+           //mvc: 
+           //model: for save and manges data,
+           //view: visuals mangager, renders visual using data in the model
+           //controller: resspond event:e.g button clicks
+           //tell the model to updatas its data, and theview to re-render
+            
+            //model,save:todo array; manages data: creates and delete
+            
+            //if localstroage has a todos array, then use it, otherwise use the default array
+            let todos;//dont know localstroage or default yet, so not assign
+            
+            //retrieve localStorage: and convert it to array using json.parse
+            const savedTodos=JSON.parse(localStorage.getItem('todos'));//the comback vaue is string
+            //check is if array 
+            if(Array.isArray(savedTodos)){
+                todos=savedTodos;
+
+    
+            }else{
+                todos =[
+                    {input:'task1',
+                    dueDate: '2022-10-04',
+                    id: "id1"}, 
+                    {input:'task2',
+                    dueDate: '2022-10-03',
+                    id: "id2"}, 
+                    {input:'task3',
+                    dueDate: '2022-10-01',
+                    id: "id3"}];
+            }
+
+            //creates a todo in model section
+            function createTodo(input, dueDate){
+                const id = ''+new Date().getTime();//use current time for id
+                todos.push({
+                    input: input, //missing input and dueDate, so need to pass in
+                    dueDate: dueDate,
+                    id: id });
+
+                saveTodos();
+            }
+
+            //deletes a todo in model section
+            function removeTodo(idToDelete){
+                todos=todos.filter(function(todo){//reassgin, so can't use const , use let
+                    //if the id of this todo mach idtodel , return false(remove)
+                    if(todo.id===idToDelete){ //=== need to be same type..
+                        return false;
+                    }else{
+                        return true;
+                    }
+                    //for every thing else return true
+                    //remove item(todo) in loop if retern false
+
+                });//go thu array
+                saveTodos();
+
+            }
+            //saveTodo
+            function saveTodos(){ 
+                localStorage.setItem('todos', JSON.stringify(todos));//convert array to string as value
+            }//and put it the place need it: after create and remvoe
+
+
+            //view: take the model in view
+            
+            
+            //1. erase the list 2. re-render the list, we can do it in diff way, like keep the list the same and changed sth
+            //and some time we want it look the same so we use framework:consistance , readable
+            function render(){
+                  //reset
+                document.getElementById('todo-list').innerHTML='';
+
+
+
+                //using loop instead of add function...
+                todos.forEach(function(todo){ 
+                const element =document.createElement('div');
+                element.innerText=todo.input +' ' +todo.dueDate;
+                //create delete button
+                const deleteButton=document.createElement('button');
+                deleteButton.innerText='Delete';
+                deleteButton.style='margin-left: 12px;';
+                //in dom, we set attribute only the function name
+                deleteButton.onclick =deleteTodo;
+                deleteButton.id=todo.id;
+                element.appendChild(deleteButton);
+
+
+
+                const todoList =document.getElementById('todo-list');
+                todoList.appendChild(element);
+                //now redering insdie the div instead of body..
+            
+            });
+
+            }
+
+
+
+
+            //controller: resspond event:e.g button clicks
+            //only 2 button function
+
+
+            function addTodo(){
+                //grab the html id to become a varable
+                const textbox=document.getElementById('todo-input');
+                const input =textbox.value;
+                
+                const datePicker= document.getElementById('date-picker'); 
+                const dueDate=datePicker.value;
+
+                
+
+
+                //how we assoiate a due date with each task(todo)
+
+
+                createTodo(input, dueDate);//we want each do one thing only, 
+                render();//like 1 for createtoDO in model , and reder for view
+            }
+
+            function deleteTodo(event){
+                //need to know where this delte belong to: creat id
+                const deleteButton=event.target;
+                const idToDelete = deleteButton.id;//string type, id should be number type
+
+                removeTodo(idToDelete);
+                render();//update
+            }
+
+            function clearList(){
+                let text;
+                if (confirm("Press a button!") == true) {
+                    todos=[];//....this works..
+                    saveTodos();
+                    render();
+                } else {
+                text = "You canceled!";
+                }
+                
+               
+
+            }
+
+            render();
+
+
+        </script>
+       
+    </body>
+</html>
+
+
